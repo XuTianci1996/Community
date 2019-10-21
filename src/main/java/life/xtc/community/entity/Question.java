@@ -7,9 +7,9 @@ public class Question {
     private Integer id;
     private String title;
     private String description;
-    private String gmtCreated;
-    private String gmtModified;
-    private String creator;
+    private Long gmtCreated;
+    private Long gmtModified;
+    private Integer creator;
     private Integer commentCount;
     private Integer viewCount;
     private Integer likeCount;
