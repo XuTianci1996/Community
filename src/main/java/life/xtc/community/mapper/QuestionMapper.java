@@ -3,6 +3,7 @@ package life.xtc.community.mapper;
 import life.xtc.community.entity.Question;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -16,6 +17,12 @@ public interface QuestionMapper {
     @Select("select * from question limit #{offset},#{size}")
     List<Question> list(Integer offset, Integer size);
 
+    @Select("select * from question where creator=#{userId} limit #{offset},#{size}")
+    List<Question> listById(@Param("userId")Integer userId, Integer offset, Integer size);
+
     @Select("select count(1) from question")
     Integer count();
+
+    @Select("select count(1) from question where creator=#{userId}")
+    Integer countById(@Param("userId")Integer userId);
 }
