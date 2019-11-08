@@ -8,6 +8,7 @@ import life.xtc.community.mapper.QuestionMapper;
 import life.xtc.community.mapper.UserMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -88,5 +89,15 @@ public class QuestionService {
         paginationDTO.setPagination(total,page,size);
         return paginationDTO;
 
+    }
+
+
+    public QuestionDTO getById(Integer id) {
+        Question question = questionMapper.getById(id);
+        User user = userMapper.findById(question.getCreator());
+        QuestionDTO questionDTO = new QuestionDTO();
+        BeanUtils.copyProperties(question,questionDTO);
+        questionDTO.setUser(user);
+        return questionDTO;
     }
 }
