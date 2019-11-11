@@ -5,6 +5,7 @@ import life.xtc.community.dto.GitHubUser;
 import life.xtc.community.entity.User;
 import life.xtc.community.mapper.UserMapper;
 import life.xtc.community.provider.GitHubProvider;
+import life.xtc.community.service.UserService;
 import okhttp3.Request;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +37,8 @@ public class AuthorizeController {
     @Value("${github.client.uri}")
     private String clientUri;
 
+    @Autowired
+    private UserService userService;
     @GetMapping("/callback")
     public String callback(@RequestParam(name = "code")String code,
                            @RequestParam(name="state")String state,
@@ -53,12 +56,10 @@ public class AuthorizeController {
             User user = new User();
             String token = UUID.randomUUID().toString();
             user.setToken(token);
-            user.setGmtCreate(System.currentTimeMillis());
-            user.setGmtModified(System.currentTimeMillis());
             user.setName(gitHubUser.getName());
             user.setAccountId(String.valueOf(gitHubUser.getId()));
             user.setAvatarUrl(gitHubUser.getAvatarUrl());
-            userMapper.insertUser(user);
+            userService.CreateOrUpdate(user);
             response.addCookie(new Cookie("token",token));
             // request.getSession().setAttribute("user",gitHubUser);
             return "redirect:/";
@@ -66,5 +67,14 @@ public class AuthorizeController {
             System.out.println("未登录");
             return "redirect:/";
         }
+    }
+
+    @GetMapping("logout")
+    public String Logout(HttpServletRequest request,HttpServletResponse response){
+        request.getSession().removeAttribute("user");
+        Cookie cookie = new Cookie("token",null);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        return "redirect:/";
     }
 }

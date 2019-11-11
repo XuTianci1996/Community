@@ -1,13 +1,16 @@
 package life.xtc.community.controller;
 
+import life.xtc.community.dto.QuestionDTO;
 import life.xtc.community.entity.Question;
 import life.xtc.community.entity.User;
 import life.xtc.community.mapper.QuestionMapper;
 import life.xtc.community.mapper.UserMapper;
+import life.xtc.community.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -18,21 +21,30 @@ import javax.servlet.http.HttpServletRequest;
 public class PublishController {
 
     @Autowired
-    private QuestionMapper questionMapper;
-
-    @Autowired
-    private UserMapper userMapper;
-
+    private QuestionService questionService;
     @GetMapping("/publish")
     public String publish() {
         return "publish";
     }
 
+    @GetMapping("/publish/{id}")
+    public String edit(@PathVariable("id")Long id,
+                       Model model){
+        QuestionDTO question = questionService.getById(id);
+        model.addAttribute("title", question.getTitle());
+        System.out.println(question.getDescription());
+        model.addAttribute("description", question.getDescription());
+        model.addAttribute("tag", question.getTag());
+        model.addAttribute("id", question.getId());
+        return "publish";
+    }
+
     @PostMapping("/publish")
     public String doPublish(
-            @RequestParam("title") String title,
-            @RequestParam("description") String description,
-            @RequestParam("tag") String tag,
+            @RequestParam(value = "title",required = false) String title,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "tag",required = false) String tag,
+            @RequestParam(value = "id",required = false) Long id,
             HttpServletRequest request,
             Model model
     ) {
@@ -61,9 +73,8 @@ public class PublishController {
         question.setDescription(description);
         question.setTag(tag);
         question.setCreator(user.getId());
-        question.setGmtCreated(System.currentTimeMillis());
-        question.setGmtModified(System.currentTimeMillis());
-        questionMapper.Create(question);
+        question.setId(id);
+        questionService.CreateOrUpdate(question);
         return "redirect:/";
     }
 }
